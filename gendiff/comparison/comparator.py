@@ -2,9 +2,9 @@ import json
 import yaml
 
 
-def get_diff(first_file, second_file, format):
-    first_file_format = first_file.split('.')[1]
-    second_file_format = second_file.split('.')[1]
+def get_diff(first_file, second_file, format=None):
+    first_file_format = first_file.split('.')[-1]
+    second_file_format = second_file.split('.')[-1]
     if (first_file_format != 'json' and first_file_format != 'yml'):
         print(
             f'The format of {first_file} "{first_file_format}" '
@@ -32,7 +32,8 @@ def get_diff(first_file, second_file, format):
     result = run_diff(file1, file2, '', format)
     if format == 'json':
         return result
-    print(result)
+    # print(result)
+    return result
 
 
 def get_yml_files(first_file, second_file):
@@ -52,13 +53,14 @@ def add_children(node, indent, format):
     json_result = {}
     for k in node:
         if type(node[k]) is dict:
-            child_branch = add_children(node[k], f'{indent}    ')
+            child_branch = add_children(node[k], f'{indent}    ', format)
             result += f'    {indent}{k}: {child_branch}\n'
             json_result[f' {k}'] = child_branch
     else:
         result += f'    {indent}{k}: {node[k]}\n'
         json_result[f' {k}'] = node[k]
     if format == 'json':
+        print('pass')
         return json.dumps(json_result)
     return result + indent + '}'
 
@@ -67,6 +69,9 @@ def run_diff(file1, file2, indent, format=None, path=''):
     result = '{\n'
     plain_result = []
     json_result = {}
+    if not file1 and not file2:
+        print('No data to compare, the files are empty')
+        return
     for k in file1:
         if k in file1 and k in file2:
             if type(file1[k]) is dict and type(file1[k]) is dict:
@@ -105,7 +110,7 @@ def run_diff(file1, file2, indent, format=None, path=''):
     for k in file2:
         if k not in file1:
             if type(file2[k]) is dict:
-                child_branch = add_children(file2[k], f'{indent}    ')
+                child_branch = add_children(file2[k], f'{indent}    ', format)
                 result += f'  {indent}+ {k}: {child_branch}\n'
                 plain_result.append(
                     f'Property "{path}{k}"'
