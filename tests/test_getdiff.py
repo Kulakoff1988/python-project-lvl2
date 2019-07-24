@@ -32,17 +32,17 @@ def test_flat_json_to_string():
     )
 
 
-def test_flat_json_to_plain():
-    plain_result = (
-        'Property "test" was changed.From "bar" to "foo"\n'
-        'Property "foo" was removed\n'
-        'Property "bar" was added with value: "foo"'
-    )
-    assert plain_result == comparator.get_diff(
-        './tests/fixtures/test_flat1.json',
-        './tests/fixtures/test_flat2.json',
-        'plain'
-    )
+# def test_flat_json_to_plain():
+#     plain_result = (
+#         'Property "test" was changed.From "bar" to "foo"\n'
+#         'Property "foo" was removed\n'
+#         'Property "bar" was added with value: "foo"'
+#     )
+#     assert plain_result == comparator.get_diff(
+#         './tests/fixtures/test_flat1.json',
+#         './tests/fixtures/test_flat2.json',
+#         'plain'
+#     )
 
 
 def test_flat_json_to_json():
