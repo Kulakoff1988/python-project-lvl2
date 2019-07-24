@@ -4,12 +4,21 @@ from gendiff.comparison import comparator
 
 def test_empty():
     assert None == comparator.get_diff(
-        './tests/test_cases/test_empty1.json',
-        './tests/test_cases/test_empty2.json'
+        './tests/fixtures/test_empty1.json',
+        './tests/fixtures/test_empty2.json'
+    )
+    assert None == comparator.get_diff(
+        './tests/fixtures/test_empty1.yml',
+        './tests/fixtures/test_empty2.yml'
     )
 
 
-def test_flat_json():
+# def test_wrong_formats():
+
+# def test_different_formats():
+
+
+def test_flat_json_to_string():
     string_result = ('{\n'
         '    constant: yep\n'
         '  - test: bar\n'
@@ -17,29 +26,35 @@ def test_flat_json():
         '  - foo: bar\n'
         '  + bar: foo\n'
     '}')
+    assert string_result == comparator.get_diff(
+        './tests/fixtures/test_flat1.json',
+        './tests/fixtures/test_flat2.json'
+    )
+
+
+def test_flat_json_to_plain():
     plain_result = (
         'Property "test" was changed.From "bar" to "foo"\n'
         'Property "foo" was removed\n'
         'Property "bar" was added with value: "foo"'
     )
-    json_result = {
-        "constant": "yep",
-        "- test": "bar",
-        "+ test": "foo",
-        "- foo": "bar",
-        "+ bar": "foo"
-    }
-    assert string_result == comparator.get_diff(
-        './tests/test_cases/test_flat1.json',
-        './tests/test_cases/test_flat2.json'
-    )
     assert plain_result == comparator.get_diff(
-        './tests/test_cases/test_flat1.json',
-        './tests/test_cases/test_flat2.json',
+        './tests/fixtures/test_flat1.json',
+        './tests/fixtures/test_flat2.json',
         'plain'
     )
-    # assert json_result == comparator.get_diff(
-    #     './tests/test_cases/test_flat1.json',
-    #     './tests/test_cases/test_flat2.json',
-    #     'json'
-    # )
+
+
+def test_flat_json_to_json():
+    json_result = json.dumps({
+        'constant': 'yep',
+        '- test': 'bar',
+        '+ test': 'foo',
+        '- foo': 'bar',
+        '+ bar': 'foo'
+    })
+    assert json_result == comparator.get_diff(
+        './tests/fixtures/test_flat1.json',
+        './tests/fixtures/test_flat2.json',
+        'json'
+    )

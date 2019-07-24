@@ -32,7 +32,7 @@ def get_diff(first_file, second_file, format=None):
     result = run_diff(file1, file2, '', format)
     if format == 'json':
         return result
-    # print(result)
+    print(result)
     return result
 
 
@@ -55,10 +55,10 @@ def add_children(node, indent, format):
         if type(node[k]) is dict:
             child_branch = add_children(node[k], f'{indent}    ', format)
             result += f'    {indent}{k}: {child_branch}\n'
-            json_result[f' {k}'] = child_branch
+            json_result[f'{k}'] = child_branch
     else:
         result += f'    {indent}{k}: {node[k]}\n'
-        json_result[f' {k}'] = node[k]
+        json_result[f'{k}'] = node[k]
     if format == 'json':
         print('pass')
         return json.dumps(json_result)
@@ -87,7 +87,7 @@ def run_diff(file1, file2, indent, format=None, path=''):
                 plain_result.append(diff_branch)
             elif file1[k] == file2[k]:
                 result += f'    {indent}{k}: {file1[k]}\n'
-                json_result[f' {k}'] = file1[k]
+                json_result[f'{k}'] = file1[k]
             else:
                 result += f'  {indent}- {k}: {file1[k]}\n'
                 result += f'  {indent}+ {k}: {file2[k]}\n'
@@ -125,5 +125,5 @@ def run_diff(file1, file2, indent, format=None, path=''):
     if format == 'plain':
         return '\n'.join(plain_result)
     if format == 'json':
-        return json_result
+        return json.dumps(json_result)
     return result + indent + '}'
