@@ -25,7 +25,6 @@ def get_result(format, result, key, element, operator='', indent='', path=''):
 
 
 def get_diff(first_file, second_file, format='str'):
-    format = format if format else 'str'
     first_file_format = first_file.split('.')[-1]
     second_file_format = second_file.split('.')[-1]
     if (first_file_format != 'json' and first_file_format != 'yml'):
@@ -50,7 +49,6 @@ def get_diff(first_file, second_file, format='str'):
     result = run_diff(format, file1, file2)
     if format == 'json':
         return result
-    print(result)
     return result
 
 
@@ -59,23 +57,23 @@ def switch_case(case, dict):
 
 
 def get_yml_files(first_file, second_file):
-    with open(first_file, "r") as scr_file1:
-        file1 = yaml.load(scr_file1, yaml.Loader)
-    with open(second_file, "r") as scr_file2:
-        file2 = yaml.load(scr_file2, yaml.Loader)
+    with open(first_file, "r") as src_file1:
+        file1 = yaml.load(src_file1, yaml.Loader)
+    with open(second_file, "r") as src_file2:
+        file2 = yaml.load(src_file2, yaml.Loader)
     return (file1, file2)
 
 
 def get_json_files(first_file, second_file):
-    with open(first_file, "r") as scr_file1:
-        file1 = json.load(scr_file1)
-    with open(second_file, "r") as scr_file2:
-        file2 = json.load(scr_file2)
+    with open(first_file, "r") as src_file1:
+        file1 = json.load(src_file1)
+    with open(second_file, "r") as src_file2:
+        file2 = json.load(src_file2)
     return (file1, file2)
 
 
 def add_children(node, indent, format):
-    if format == 'json':
+    if format == 'plain':
         return 'complex value'
     result = '{\n'
     json_result = {}
@@ -103,44 +101,57 @@ def run_diff(format, file1, file2, indent='', path=''):
         print('No data to compare, the files are empty')
         return
     for k in file1:
+        print(f'-1 {result}')
         if k in file1 and k in file2:
+            print(f'0 {result}')
             if type(file1[k]) is dict and type(file1[k]) is dict:
+                print(f'1 {result}')
                 diff_branch = run_diff(
+                    format,
                     file1[k],
                     file2[k],
                     f'{indent}    ',
-                    format,
                     f'{path}{k}.'
                 )
                 result = get_result(
                     format, result, k, diff_branch, '  ', indent, path
                 )
             elif file1[k] == file2[k]:
+                print(f'2 {result}')
                 result = get_result(
                     format, result, k, file1[k], '  ', indent, path
                 )
             else:
+                print(f'3 {result}')
                 result = get_result(
                     format, result, k, (file1[k], file2[k]), '- ', indent, path
                 )
         elif k in file1:
+            print(f'4 {result}')
             if type(file1[k]) is dict:
+                print(f'5 {result}')
                 child_branch = add_children(file1[k], f'{indent}    ', format)
                 result = get_result(
                     format, result, k, child_branch, '- ', indent, path
                 )
             else:
+                print(f'6 {result}')
                 result = get_result(
                     format, result, k, file1[k], '- ', indent, path
                 )
     for k in file2:
+        print(f'7 {result}')
         if k not in file1:
+            print(f'8 {result}')
             if type(file2[k]) is dict:
+                print(f'9 {result}')
                 child_branch = add_children(file2[k], f'{indent}    ', format)
                 result = get_result(
                     format, result, k, child_branch, '+ ', indent, path
                 )
+                print(f'10 {result}')
             else:
+                print(f'11 {result}')
                 result = get_result(
                     format, result, k, file2[k], '+ ', indent, path
                 )
