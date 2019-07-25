@@ -1,13 +1,13 @@
 import pytest
 import json
-from gendiff.comparison import comparator
+from gendiff import engine
 
 def test_empty():
-    assert None == comparator.get_diff(
+    assert None == engine.get_diff(
         './tests/fixtures/test_empty1.json',
         './tests/fixtures/test_empty2.json'
     )
-    assert None == comparator.get_diff(
+    assert None == engine.get_diff(
         './tests/fixtures/test_empty1.yml',
         './tests/fixtures/test_empty2.yml'
     )
@@ -26,23 +26,23 @@ def test_flat_json_to_string():
         '  - foo: bar\n'
         '  + bar: foo\n'
     '}')
-    assert string_result == comparator.get_diff(
+    assert string_result == engine.get_diff(
         './tests/fixtures/test_flat1.json',
         './tests/fixtures/test_flat2.json'
     )
 
 
-# def test_flat_json_to_plain():
-#     plain_result = (
-#         'Property "test" was changed.From "bar" to "foo"\n'
-#         'Property "foo" was removed\n'
-#         'Property "bar" was added with value: "foo"'
-#     )
-#     assert plain_result == comparator.get_diff(
-#         './tests/fixtures/test_flat1.json',
-#         './tests/fixtures/test_flat2.json',
-#         'plain'
-#     )
+def test_flat_json_to_plain():
+    plain_result = (
+        'Property "test" was changed. From "bar" to "foo"\n'
+        'Property "foo" was removed\n'
+        'Property "bar" was added with value: "foo"'
+    )
+    assert plain_result == engine.get_diff(
+        './tests/fixtures/test_flat1.json',
+        './tests/fixtures/test_flat2.json',
+        'plain'
+    )
 
 
 def test_flat_json_to_json():
@@ -53,7 +53,7 @@ def test_flat_json_to_json():
         '- foo': 'bar',
         '+ bar': 'foo'
     })
-    assert json_result == comparator.get_diff(
+    assert json_result == engine.get_diff(
         './tests/fixtures/test_flat1.json',
         './tests/fixtures/test_flat2.json',
         'json'

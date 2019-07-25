@@ -1,5 +1,6 @@
 import json
 import yaml
+from gendiff.formatters import string, plain, m_json
 
 error_dict = {
     'unsupported_formats': lambda file_name, file_format: (
@@ -13,11 +14,15 @@ error_dict = {
     )
 }
 
-type_action_dict = {
-    'str': lambda result, key, element, operator, indent: result + f'{indent}  {operator}{key}: {element}\n',
-    # 'plain': lambda result, key, element, operator, indent=None: json_case_action(result, key, element, operator),
-    'json': lambda result, key, element, operator, indent: json_case_action(result, key, element, operator)
-}
+
+def get_result(format, result, key, element, operator='', indent='', path=''):
+    if format == 'str':
+        return string.get_diff(result, key, element, operator, indent)
+    if format == 'plain':
+        return plain.get_diff(result, key, element, operator, path)
+    if format == 'json':
+        return m_json.get_diff(result, key, element, operator)
+
 
 def get_diff(first_file, second_file, format='str'):
     format = format if format else 'str'
@@ -42,7 +47,7 @@ def get_diff(first_file, second_file, format='str'):
         (file1, file2) = get_json_files(first_file, second_file)
     if (first_file_format == 'yml'):
         (file1, file2) = get_yml_files(first_file, second_file)
-    result = run_diff(file1, file2, '', format)
+    result = run_diff(format, file1, file2)
     if format == 'json':
         return result
     print(result)
@@ -51,11 +56,6 @@ def get_diff(first_file, second_file, format='str'):
 
 def switch_case(case, dict):
     return dict.get(case, f'No case {case} in dictionary')
-
-def json_case_action(result, key, element, operator, indent=None):
-    operator = '' if operator == '  ' else operator
-    result[operator + key] = element
-    return result
 
 
 def get_yml_files(first_file, second_file):
@@ -75,6 +75,8 @@ def get_json_files(first_file, second_file):
 
 
 def add_children(node, indent, format):
+    if format == 'json':
+        return 'complex value'
     result = '{\n'
     json_result = {}
     for k in node:
@@ -86,22 +88,17 @@ def add_children(node, indent, format):
         result += f'    {indent}{k}: {node[k]}\n'
         json_result[f'{k}'] = node[k]
     if format == 'json':
-        print('pass')
         return json.dumps(json_result)
     return result + indent + '}'
 
 
-def run_diff(file1, file2, indent, format, path=''):
-    print(format)
+def run_diff(format, file1, file2, indent='', path=''):
     result_dict = {
         'str': '{\n',
         'plain': [],
         'json': {}
     }
     result = result_dict[format]
-    # result = '{\n'
-    # plain_result = []
-    # json_result = {}
     if not file1 and not file2:
         print('No data to compare, the files are empty')
         return
@@ -115,54 +112,40 @@ def run_diff(file1, file2, indent, format, path=''):
                     format,
                     f'{path}{k}.'
                 )
-                result = switch_case(format, type_action_dict)(result, k, diff_branch, '  ', indent)
-                # json_result[f' {k}'] = diff_branch
-                # plain_result.append(diff_branch)
+                result = get_result(
+                    format, result, k, diff_branch, '  ', indent, path
+                )
             elif file1[k] == file2[k]:
-                result = switch_case(format, type_action_dict)(result, k, file1[k], '  ', indent)
-                # result += f'    {indent}{k}: {file1[k]}\n'
-                # json_result[f'{k}'] = file1[k]
+                result = get_result(
+                    format, result, k, file1[k], '  ', indent, path
+                )
             else:
-                result = switch_case(format, type_action_dict)(result, k, file1[k], '- ', indent)
-                result = switch_case(format, type_action_dict)(result, k, file2[k], '+ ', indent)
-                # plain_result.append(
-                #     f'Property "{path}{k}" was changed.'
-                #     f'From "{file1[k]}" to "{file2[k]}"'
-                # )
-                # json_result[f'- {k}'] = file1[k]
-                # json_result[f'+ {k}'] = file2[k]
+                result = get_result(
+                    format, result, k, (file1[k], file2[k]), '- ', indent, path
+                )
         elif k in file1:
             if type(file1[k]) is dict:
                 child_branch = add_children(file1[k], f'{indent}    ', format)
-                result = switch_case(format, type_action_dict)(result, k, child_branch, '- ', indent)
-                # result += f'  {indent}- {k}: {child_branch}\n'
-                # plain_result.append(f'Property "{path}{k}" was removed')
-                # json_result[f'- {k}'] = child_branch
+                result = get_result(
+                    format, result, k, child_branch, '- ', indent, path
+                )
             else:
-                # result += f'  {indent}- {k}: {file1[k]}\n'
-                result = switch_case(format, type_action_dict)(result, k, file1[k], '- ', indent)
-                # plain_result.append(f'Property "{path}{k}" was removed')
-                # json_result[f'- {k}'] = file1[k]
+                result = get_result(
+                    format, result, k, file1[k], '- ', indent, path
+                )
     for k in file2:
         if k not in file1:
             if type(file2[k]) is dict:
                 child_branch = add_children(file2[k], f'{indent}    ', format)
-                # result += f'  {indent}+ {k}: {child_branch}\n'
-                result = switch_case(format, type_action_dict)(result, k, child_branch, '+ ', indent)
-                # plain_result.append(
-                #     f'Property "{path}{k}"'
-                #     'was added with value: "complex value"'
-                # )
+                result = get_result(
+                    format, result, k, child_branch, '+ ', indent, path
+                )
             else:
-                # result += f'  {indent}+ {k}: {file2[k]}\n'
-                result = switch_case(format, type_action_dict)(result, k, file2[k], '+ ', indent)
-                # plain_result.append(
-                #     f'Property "{path}{k}" was added with value: "{file2[k]}"'
-                # )
-                # json_result[f'+ {k}'] = file2[k]
+                result = get_result(
+                    format, result, k, file2[k], '+ ', indent, path
+                )
     if format == 'plain':
         return '\n'.join(result)
     if format == 'json':
-        print(result)
         return json.dumps(result)
     return result + indent + '}'
