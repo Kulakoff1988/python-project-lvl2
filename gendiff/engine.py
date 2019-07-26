@@ -75,11 +75,11 @@ def get_diff(first_file, second_file, format='str'):
         return print(message)
     get_files_value = switch_case(first_file_format, file_open_tools)
     (file1, file2) = get_files_value(first_file, second_file)
-    result = split_to_pieces(format, file1, file2)
+    result = build_by_pieces(format, file1, file2)
     if format == 'json':
-        return json.dumps(result)
+        result = json.dumps(result)
     if format == 'plain':
-        return '\n'.join(result)
+        result = '\n'.join(result)
     return result
 
 
@@ -119,7 +119,7 @@ def build_nested(node, indent, format):
     return container
 
 
-def split_to_pieces(format, file1, file2, indent='', path=''):
+def build_by_pieces(format, file1, file2, indent='', path=''):
     container = container_dict[format]()
     if not file1 and not file2:
         print('No data to compare, the files are empty')
@@ -127,7 +127,7 @@ def split_to_pieces(format, file1, file2, indent='', path=''):
     for k in file1:
         if k in file1 and k in file2:
             if type(file1[k]) is dict and type(file1[k]) is dict:
-                nested_diff = split_to_pieces(
+                nested_diff = build_by_pieces(
                     format,
                     file1[k],
                     file2[k],
