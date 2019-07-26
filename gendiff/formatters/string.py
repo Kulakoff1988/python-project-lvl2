@@ -1,7 +1,7 @@
-def get_diff(result, key, element, operator, indent):
+def build_element(container, key, element, indent, operator):
     if type(element) == tuple:
         (old_value, new_value) = element
-        result += f'{indent}  - {key}: {old_value}\n'
-        result += f'{indent}  + {key}: {new_value}\n'
-        return result
-    return f'{result}{indent}  {operator}{key}: {element}\n'
+        container += f'{indent}  - {key}: {old_value}\n'
+        container += f'{indent}  + {key}: {new_value}\n'
+        return container
+    return f'{container}{indent}  {operator}{key}: {element}\n'

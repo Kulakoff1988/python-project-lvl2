@@ -96,14 +96,44 @@ def test_nested_files():
         'Property "common.setting5" was added with value: "complex value"\n'
         'Property "group1.baz" was changed. From "bas" to "bars"\n'
         'Property "group2" was removed\n'
-        'Property "group3" was added with value: "complex value"\n'
+        'Property "group3" was added with value: "complex value"'
     )
-    # assert string_result == engine.get_diff(
-    #     './tests/fixtures/test1.json',
-    #     './tests/fixtures/test2.json'
-    # )
+    json_result = json.dumps({
+        'common': {
+            'setting1': 'Value 1',
+            '- setting2': '200',
+            'setting3': 'true',
+            '- setting6': {
+                'key': 'value'
+            },
+            '+ setting4': 'blah blah',
+            '+ setting5': {
+                'key5': 'value5'
+            }
+        },
+        'group1': {
+            '- baz': 'bas',
+            '+ baz': 'bars',
+            'foo': 'bar'
+        },
+        '- group2': {
+            'abc': '12345'
+        },
+        '+ group3': {
+            'fee': '100500'
+        }
+    })
+    assert string_result == engine.get_diff(
+        './tests/fixtures/test1.json',
+        './tests/fixtures/test2.json'
+    )
     assert plain_result == engine.get_diff(
         './tests/fixtures/test1.json',
         './tests/fixtures/test2.json',
         'plain'
+    )
+    assert json_result == engine.get_diff(
+        './tests/fixtures/test1.json',
+        './tests/fixtures/test2.json',
+        'json'
     )

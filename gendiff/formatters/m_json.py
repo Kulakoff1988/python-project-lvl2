@@ -1,9 +1,9 @@
-def get_diff(result, key, element, operator):
+def build_element(container, key, element, operator):
     if type(element) == tuple:
         (old_value, new_value) = element
-        result[f'- {key}'] = old_value
-        result[f'+ {key}'] = new_value
-        return result
+        container[f'- {key}'] = old_value
+        container[f'+ {key}'] = new_value
+        return container
     operator = '' if operator == '  ' else operator
-    result[operator + key] = element
-    return result
+    container[operator + key] = element
+    return container

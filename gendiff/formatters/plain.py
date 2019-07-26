@@ -1,14 +1,16 @@
-def get_diff(result, key, element, operator, path):
-    if type(element) == tuple:
+def build_element(container, key, element, operator, path):
+    if type(element) is tuple:
         (old_value, new_value) = element
-        result.append(
+        container.append(
             f'Property "{path}{key}" was changed. '
             f'From "{old_value}" to "{new_value}"'
         )
     if operator == '+ ':
-        result.append(
+        container.append(
             f'Property "{path}{key}" was added with value: "{element}"'
         )
-    if operator == '- ' and type(element) != tuple:
-        result.append(f'Property "{path}{key}" was removed')
-    return result
+    if operator == '- ' and type(element) is not tuple:
+        container.append(f'Property "{path}{key}" was removed')
+    if type(element) is list:
+        container.extend(element)
+    return container

@@ -2,6 +2,11 @@ import json
 import yaml
 from gendiff.formatters import string, plain, m_json
 
+
+def switch_case(case, dict):
+    return dict.get(case, f'No case {case} in dictionary')
+
+
 error_dict = {
     'unsupported_formats': lambda file_name, file_format: (
         f'The format of {file_name} "{file_format}" '
@@ -15,13 +20,39 @@ error_dict = {
 }
 
 
-def get_result(format, result, key, element, operator='', indent='', path=''):
-    if format == 'str':
-        return string.get_diff(result, key, element, operator, indent)
-    if format == 'plain':
-        return plain.get_diff(result, key, element, operator, path)
-    if format == 'json':
-        return m_json.get_diff(result, key, element, operator)
+container_dict = {
+    'str': lambda: '{\n',
+    'plain': lambda: [],
+    'json': lambda: {}
+}
+
+
+file_open_tools = {
+    'yml': lambda first_file, second_file: get_yml_files(
+        first_file,
+        second_file
+    ),
+    'json': lambda first_file, second_file: get_json_files(
+        first_file,
+        second_file
+    )
+}
+
+
+def get_yml_files(first_file, second_file):
+    with open(first_file, "r") as src_file1:
+        file1 = yaml.load(src_file1, yaml.Loader)
+    with open(second_file, "r") as src_file2:
+        file2 = yaml.load(src_file2, yaml.Loader)
+    return (file1, file2)
+
+
+def get_json_files(first_file, second_file):
+    with open(first_file, "r") as src_file1:
+        file1 = json.load(src_file1)
+    with open(second_file, "r") as src_file2:
+        file2 = json.load(src_file2)
+    return (file1, file2)
 
 
 def get_diff(first_file, second_file, format='str'):
@@ -42,121 +73,113 @@ def get_diff(first_file, second_file, format='str'):
     if (first_file_format != second_file_format):
         message = switch_case('different_formats', error_dict)()
         return print(message)
-    if (first_file_format == 'json'):
-        (file1, file2) = get_json_files(first_file, second_file)
-    if (first_file_format == 'yml'):
-        (file1, file2) = get_yml_files(first_file, second_file)
-    result = run_diff(format, file1, file2)
+    get_files_value = switch_case(first_file_format, file_open_tools)
+    (file1, file2) = get_files_value(first_file, second_file)
+    result = split_to_pieces(format, file1, file2)
     if format == 'json':
-        return result
+        return json.dumps(result)
+    if format == 'plain':
+        return '\n'.join(result)
     return result
 
 
-def switch_case(case, dict):
-    return dict.get(case, f'No case {case} in dictionary')
+def build_element(
+    format,
+    container,
+    key,
+    element,
+    indent='',
+    operator='',
+    path=''
+):
+    if format == 'str':
+        return string.build_element(container, key, element, indent, operator)
+    if format == 'plain':
+        return plain.build_element(container, key, element, operator, path)
+    if format == 'json':
+        return m_json.build_element(container, key, element, operator)
 
 
-def get_yml_files(first_file, second_file):
-    with open(first_file, "r") as src_file1:
-        file1 = yaml.load(src_file1, yaml.Loader)
-    with open(second_file, "r") as src_file2:
-        file2 = yaml.load(src_file2, yaml.Loader)
-    return (file1, file2)
-
-
-def get_json_files(first_file, second_file):
-    with open(first_file, "r") as src_file1:
-        file1 = json.load(src_file1)
-    with open(second_file, "r") as src_file2:
-        file2 = json.load(src_file2)
-    return (file1, file2)
-
-
-def add_children(node, indent, format):
+def build_nested(node, indent, format):
     if format == 'plain':
         return 'complex value'
-    result = '{\n'
-    json_result = {}
+    container = container_dict[format]()
     for k in node:
         if type(node[k]) is dict:
-            child_branch = add_children(node[k], f'{indent}    ', format)
-            result += f'    {indent}{k}: {child_branch}\n'
-            json_result[f'{k}'] = child_branch
+            nested_element = build_nested(node[k], f'{indent}    ', format)
+            container = build_element(
+                format, container, k, nested_element, f'{indent}    ', '  '
+            )
     else:
-        result += f'    {indent}{k}: {node[k]}\n'
-        json_result[f'{k}'] = node[k]
-    if format == 'json':
-        return json.dumps(json_result)
-    return result + indent + '}'
+        container = build_element(
+            format, container, k, node[k], f'{indent}', '  '
+        )
+    if format == 'str':
+        container += indent + '}'
+    return container
 
 
-def run_diff(format, file1, file2, indent='', path=''):
-    result_dict = {
-        'str': '{\n',
-        'plain': [],
-        'json': {}
-    }
-    result = result_dict[format]
+def split_to_pieces(format, file1, file2, indent='', path=''):
+    container = container_dict[format]()
     if not file1 and not file2:
         print('No data to compare, the files are empty')
         return
     for k in file1:
-        print(f'-1 {result}')
         if k in file1 and k in file2:
-            print(f'0 {result}')
             if type(file1[k]) is dict and type(file1[k]) is dict:
-                print(f'1 {result}')
-                diff_branch = run_diff(
+                nested_diff = split_to_pieces(
                     format,
                     file1[k],
                     file2[k],
                     f'{indent}    ',
                     f'{path}{k}.'
                 )
-                result = get_result(
-                    format, result, k, diff_branch, '  ', indent, path
+                container = build_element(
+                    format, container, k, nested_diff, indent, '  ', path
                 )
             elif file1[k] == file2[k]:
-                print(f'2 {result}')
-                result = get_result(
-                    format, result, k, file1[k], '  ', indent, path
+                container = build_element(
+                    format, container, k, file1[k], indent, '  ', path
                 )
             else:
-                print(f'3 {result}')
-                result = get_result(
-                    format, result, k, (file1[k], file2[k]), '- ', indent, path
+                container = build_element(
+                    format,
+                    container,
+                    k,
+                    (file1[k], file2[k]),
+                    indent,
+                    '- ',
+                    path
                 )
         elif k in file1:
-            print(f'4 {result}')
             if type(file1[k]) is dict:
-                print(f'5 {result}')
-                child_branch = add_children(file1[k], f'{indent}    ', format)
-                result = get_result(
-                    format, result, k, child_branch, '- ', indent, path
+                nested_element = build_nested(
+                    file1[k],
+                    f'{indent}    ',
+                    format
+                )
+                container = build_element(
+                    format, container, k, nested_element, indent, '- ', path
                 )
             else:
-                print(f'6 {result}')
-                result = get_result(
-                    format, result, k, file1[k], '- ', indent, path
+                container = build_element(
+                    format, container, k, file1[k], indent, '- ', path
                 )
     for k in file2:
-        print(f'7 {result}')
         if k not in file1:
-            print(f'8 {result}')
             if type(file2[k]) is dict:
-                print(f'9 {result}')
-                child_branch = add_children(file2[k], f'{indent}    ', format)
-                result = get_result(
-                    format, result, k, child_branch, '+ ', indent, path
+                nested_element = build_nested(
+                    file2[k],
+                    f'{indent}    ',
+                    format
                 )
-                print(f'10 {result}')
+                container = build_element(
+                    format, container, k, nested_element, indent, '+ ', path
+                )
             else:
-                print(f'11 {result}')
-                result = get_result(
-                    format, result, k, file2[k], '+ ', indent, path
+                container = build_element(
+                    format, container, k, file2[k], indent, '+ ', path
                 )
-    if format == 'plain':
-        return '\n'.join(result)
-    if format == 'json':
-        return json.dumps(result)
-    return result + indent + '}'
+    if format == 'str':
+        container += indent + '}'
+    return container
