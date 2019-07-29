@@ -12,6 +12,7 @@ install:
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 
 script:
   - make lint
@@ -20,6 +21,7 @@ script:
 
 env:
   global:
-    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
-    # - CODECLIMATE_REPO_TOKEN=[token]
     - CC_TEST_REPORTER_ID=05bfc3d94d7f15be7d4d47b61330ae55a4e5b1d201504839c9d0fc00a109f6c8
+
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
