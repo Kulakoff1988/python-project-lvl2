@@ -3,4 +3,4 @@ __pycache__
 dist/
 .venv/
 .vscode/
-.coverage/
+.coverage
