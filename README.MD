@@ -7,12 +7,16 @@
 This is the utility for getting diff between two json or yaml files (in development now).
 
 Bellow you may see the way to install and use the package with flat json files:
-# TODO add asciinema
-To get diff between two flat yaml files use the command:
-# TODO add asciinema
+[![asciicast](https://asciinema.org/a/259941.svg)](https://asciinema.org/a/259941)
+
+To get diff between two flat yaml or json files use the command:
+[![asciicast](https://asciinema.org/a/259968.svg)](https://asciinema.org/a/259968)
+
 To get diff between two recursive structure files use next:
-# TODO add asciinema
+[![asciicast](https://asciinema.org/a/259969.svg)](https://asciinema.org/a/259969)
+
 To get diff between two files in plain format use the command:
-# TODO add asciinema
+[![asciicast](https://asciinema.org/a/259970.svg)](https://asciinema.org/a/259970)
+
 To get diff between two files in json format use the command:
-# TODO add asciinema
+[![asciicast](https://asciinema.org/a/259972.svg)](https://asciinema.org/a/259972)

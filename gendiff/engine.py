@@ -55,7 +55,8 @@ def get_json_files(first_file, second_file):
     return (file1, file2)
 
 
-def get_diff(first_file, second_file, format='str'):
+def get_diff(first_file, second_file, format):
+    format = 'str' if format == None else format
     first_file_format = first_file.split('.')[-1]
     second_file_format = second_file.split('.')[-1]
     if (first_file_format != 'json' and first_file_format != 'yml'):
@@ -80,6 +81,7 @@ def get_diff(first_file, second_file, format='str'):
         result = json.dumps(result)
     if format == 'plain':
         result = '\n'.join(result)
+    print(result)
     return result
 
 
