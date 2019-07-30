@@ -29,3 +29,4 @@ run_diff_error:
 run_test:
 	@poetry run pytest -vv
 	@poetry run coverage run ./tests/test_getdiff.py
+	@poetry run coverage report
