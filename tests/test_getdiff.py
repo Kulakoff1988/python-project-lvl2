@@ -5,11 +5,13 @@ from gendiff import engine
 def test_empty():
     assert None == engine.get_diff(
         './tests/fixtures/test_empty1.json',
-        './tests/fixtures/test_empty2.json'
+        './tests/fixtures/test_empty2.json',
+        'str'
     )
     assert None == engine.get_diff(
         './tests/fixtures/test_empty1.yml',
-        './tests/fixtures/test_empty2.yml'
+        './tests/fixtures/test_empty2.yml',
+        'str'
     )
 
 
@@ -35,7 +37,8 @@ def test_flat_files():
     })
     assert string_result == engine.get_diff(
         './tests/fixtures/test_flat1.json',
-        './tests/fixtures/test_flat2.json'
+        './tests/fixtures/test_flat2.json',
+        'str'
     )
     assert plain_result == engine.get_diff(
         './tests/fixtures/test_flat1.json',
@@ -49,7 +52,8 @@ def test_flat_files():
     )
     assert string_result == engine.get_diff(
         './tests/fixtures/test1.yml',
-        './tests/fixtures/test2.yml'
+        './tests/fixtures/test2.yml',
+        'str'
     )
     assert plain_result == engine.get_diff(
         './tests/fixtures/test1.yml',
@@ -125,7 +129,8 @@ def test_nested_files():
     })
     assert string_result == engine.get_diff(
         './tests/fixtures/test1.json',
-        './tests/fixtures/test2.json'
+        './tests/fixtures/test2.json',
+        'str'
     )
     assert plain_result == engine.get_diff(
         './tests/fixtures/test1.json',
