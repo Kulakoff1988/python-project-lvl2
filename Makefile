@@ -3,7 +3,7 @@ all: install
 install:
 	@python3 -m poetry install
 lint:
-	@python3 -m poetry run flake8 gendiff --count
+	@python3 -m poetry run flake8 gendiff --count --ignore=F401
 package_install:
 	@pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.test.org/simple/ kulakoff1988-gendiff
 run_diff_yaml:
@@ -28,3 +28,4 @@ run_diff_error:
 	@poetry run gendiff tests/fixtures/test_flat1.json tests/fixtures/test_flat2.yml
 run_test:
 	@poetry run pytest -vv
+	@poetry run coverage run ./tests/test_getdiff.py

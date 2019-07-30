@@ -1,3 +1,7 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=05bfc3d94d7f15be7d4d47b61330ae55a4e5b1d201504839c9d0fc00a109f6c8
+    
 language: python
 python: 3.6
 
@@ -17,11 +21,7 @@ before_script:
 script:
   - make lint
   - make run_test
-  # - make package_install
-
-env:
-  global:
-    - CC_TEST_REPORTER_ID=05bfc3d94d7f15be7d4d47b61330ae55a4e5b1d201504839c9d0fc00a109f6c8
+  - make package_install
 
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
