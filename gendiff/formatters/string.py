@@ -1,4 +1,6 @@
-def build_element(container, key, element, indent, operator):
+def build_element(args):
+    # format, container, k, nested_diff, indent, '  ', path
+    container, key, element, indent, operator, path = args
     if type(element) == tuple:
         (old_value, new_value) = element
         container += f'{indent}  - {key}: {old_value}\n'

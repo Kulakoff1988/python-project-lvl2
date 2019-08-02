@@ -2,7 +2,7 @@ import argparse
 from gendiff import engine
 
 
-def main():
+def run():
     parser = argparse.ArgumentParser(description="Generate diff")
     parser.add_argument("first_file")
     parser.add_argument("second_file")
@@ -10,7 +10,3 @@ def main():
     parser.parse_args()
     args = parser.parse_args()
     engine.get_diff(args.first_file, args.second_file, args.format)
-
-
-if __name__ == "__main__":
-    main()

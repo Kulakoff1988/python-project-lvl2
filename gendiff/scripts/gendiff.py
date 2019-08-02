@@ -4,7 +4,7 @@ from gendiff import cli
 
 
 def main():
-    cli.main()
+    cli.run()
 
 
 if __name__ == "__main__":

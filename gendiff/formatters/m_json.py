@@ -1,4 +1,5 @@
-def build_element(container, key, element, operator):
+def build_element(args):
+    container, key, element, indent, operator, path = args
     if type(element) == tuple:
         (old_value, new_value) = element
         container[f'- {key}'] = old_value
