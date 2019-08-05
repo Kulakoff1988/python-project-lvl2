@@ -1,4 +1,4 @@
-def build_element(args):
+def build_representation(args):
     container, key, element, indent, operator, path = args
     if type(element) == tuple:
         (old_value, new_value) = element
