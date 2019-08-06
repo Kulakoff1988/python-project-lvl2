@@ -1,4 +1,4 @@
-from gendiff.constants import UNCHANGED
+from gendiff.constants import UNCHANGED, CHANGED, ADDED, REMOVED
 
 
 def build_representation(ast, indent=''):

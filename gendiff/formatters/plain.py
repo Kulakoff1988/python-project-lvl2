@@ -1,4 +1,4 @@
-# from gendiff.constants import UNCHANGED, CHANGED, ADDED, REMOVED
+from gendiff.constants import UNCHANGED, CHANGED, ADDED, REMOVED
 
 
 def build_representation(ast):
@@ -21,7 +21,10 @@ def build_element(element, key):
     if element['type'] == REMOVED:
         result.append(f'Property "{path}" was removed')
     if element['type'] == ADDED:
-        value = element.get('value') if element.get('value') else 'complex value'
+        if element.get('value'):
+            value = element.get('value')
+        else:
+            value = 'complex value'
         result.append(
             f'Property "{path}" was added with value: "{value}"'
         )
