@@ -44,13 +44,17 @@ def get_diff(first_file, second_file, format):
     format = FORMAT_STRING if format is None else format
     first_file_format = os.path.splitext(first_file)[-1]
     second_file_format = os.path.splitext(second_file)[-1]
-    if (first_file_format != JSON_FORMAT and first_file_format != YAML_FORMAT):
+    if (
+        first_file_format != JSON_FORMAT and first_file_format != YAML_FORMAT
+    ):
         message = get_error_message(
             first_file,
             first_file_format
         )
         return print(message)
-    if (second_file_format != JSON_FORMAT and second_file_format != YAML_FORMAT):
+    if (
+        second_file_format != JSON_FORMAT and second_file_format != YAML_FORMAT
+    ):
         message = get_error_message(
             second_file,
             second_file_format
