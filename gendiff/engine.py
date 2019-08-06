@@ -1,11 +1,25 @@
 import json
 import yaml
 import os.path
+from gendiff.formatters import string, plain, m_json
 from gendiff.constants import *
+
+
+JSON_FORMAT = '.json'
+YAML_FORMAT = '.yml'
+
+FORMAT_STRING, FORMAT_PLAIN, FORMAT_JSON = ('string', 'plain', 'json')
+
+BUILDERS_FORMATS = {
+    FORMAT_STRING: string,
+    FORMAT_PLAIN: plain,
+    FORMAT_JSON: m_json
+}
 
 
 def switch_case(case, dict):
     return dict.get(case, f'No case {case} in dictionary')
+
 
 def get_file(file_format, file_content):
     if file_format == JSON_FORMAT:
@@ -45,11 +59,6 @@ def get_diff(first_file, second_file, format):
     file2 = get_file(second_file_format, second_file)
     ast = build_ast(file1, file2)
     result = build_representation(format, ast)
-    print(result)
-    if format == FORMAT_JSON:
-        result = json.dumps(result)
-    if format == FORMAT_PLAIN:
-        result = '\n'.join(result)
     return result
 
 
@@ -58,80 +67,68 @@ def build_representation(format, ast):
     return builder.build_representation(ast)
 
 
-def build_nested(node, parent):
-    print(f'node is {node}')
-    ast = {}
+def build_nested(node):
+    nested_ast = {}
     for k in node:
-        ast[k] = {
-            'complex_value': True
+        value = build_nested(node[k]) if isinstance(node[k], dict) else node[k]
+        nested_ast[k] = {
+            'type': UNCHANGED,
+            'value': value
         }
-        if type(node[k]) is dict:
-            nested_element = build_nested(node[k], k)
-            ast[k].update({
-                    'type': 'unchange',
-                    'parent': k,
-                    'children': nested_element
-                })
-        else:
-            ast[k].update({
-                    'value': node[k],
-                    'type': 'unchange',
-                })
-    return ast
+    return nested_ast
 
 
-def build_ast(file1, file2):
+def build_ast(file1, file2, path=''):
     ast = {}
     if not file1 and not file2:
         print('No data to compare, the files are empty')
         return
     for k in file1:
-        if k not in file2:
-            if type(file1[k]) is dict:
-                print(f'value is {file1[k]} {k}')
-                nested_ast = build_ast(file1[k], k)
+        if k in file2:
+            if isinstance(file1[k], dict) and isinstance(file2[k], dict):
                 ast[k] = {
-                    'type': 'nested',
-                    'parent': k,
-                    'children': nested_ast
+                    'type': UNCHANGED,
+                    'children': build_ast(file1[k], file2[k], f'{path}{k}.')
                 }
                 continue
+            if file1[k] == file2[k]:
+                ast[k] = {
+                    'type': UNCHANGED,
+                    'value': file1[k]
+                }
+                continue
+            if file1[k] != file2[k]:
+                ast[k] = {
+                    'type': CHANGED,
+                    'path': f'{path}{k}',
+                    'old_value': file1[k],
+                    'new_value': file2[k]
+                }
+                continue
+        if isinstance(file1[k], dict):
             ast[k] = {
-                'type': 'removed',
-                'value': file1[k]
-            }
-        if isinstance(file1[k], dict) and isinstance(file2[k], dict):
-            ast[k] = {
-                'type': 'nested',
-                'parent': k,
-                'children': build_ast(file1[k], file2[k])
-            }
-            continue
-        if file1[k] != file2[k]:
-            ast[k] = {
-                'type': 'changed',
-                'old_value': file1[k],
-                'new_value': file2[k] 
+                'type': REMOVED,
+                'path': f'{path}{k}',
+                'children': build_nested(file1[k])
             }
             continue
         ast[k] = {
-            'type': 'unchange',
+            'type': REMOVED,
+            'path': f'{path}{k}',
             'value': file1[k]
         }
     for k in file2:
         if k not in file1:
             if isinstance(file2[k], dict):
-                print(f'value is {file2[k]} {k}')
-                nested_ast = build_nested(file2[k], k)
                 ast[k] = {
-                    'type': 'nested',
-                    'parent': k,
-                    'children': nested_ast
+                    'type': ADDED,
+                    'path': f'{path}{k}',
+                    'children': build_nested(file2[k])
                 }
             else:
                 ast[k] = {
-                    'type': 'added',
-                    'value': file2[k],
-                } 
-    print(json.dumps(ast, indent=2))
+                    'type': ADDED,
+                    'path': f'{path}{k}',
+                    'value': file2[k]
+                }
     return ast

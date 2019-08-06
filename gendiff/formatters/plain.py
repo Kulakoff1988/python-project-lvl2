@@ -1,17 +1,33 @@
-def build_representation(args):
-    container, key, element, indent, operator, path = args
-    if type(element) is tuple:
-        (old_value, new_value) = element
-        container.append(
-            f'Property "{path}{key}" was changed. '
-            f'From "{old_value}" to "{new_value}"'
+# from gendiff.constants import UNCHANGED, CHANGED, ADDED, REMOVED
+
+
+def build_representation(ast):
+    result = get_diff_list(ast)
+    return '\n'.join(result)
+
+
+def get_diff_list(ast):
+    result = []
+    for k in ast:
+        result.extend(build_element(ast[k], k))
+    return result
+
+
+def build_element(element, key):
+    result = []
+    if element['type'] == UNCHANGED and element.get('children'):
+        result.extend(get_diff_list(element.get('children')))
+    path = element.get('path')
+    if element['type'] == REMOVED:
+        result.append(f'Property "{path}" was removed')
+    if element['type'] == ADDED:
+        value = element.get('value') if element.get('value') else 'complex value'
+        result.append(
+            f'Property "{path}" was added with value: "{value}"'
         )
-    if operator == '+ ':
-        container.append(
-            f'Property "{path}{key}" was added with value: "{element}"'
+    if element['type'] == CHANGED:
+        result.append(
+            f'Property "{path}" was changed. '
+            f'From "{element["old_value"]}" to "{element["new_value"]}"'
         )
-    if operator == '- ' and type(element) is not tuple:
-        container.append(f'Property "{path}{key}" was removed')
-    if type(element) is list:
-        container.extend(element)
-    return container
+    return result
