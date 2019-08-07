@@ -48,14 +48,6 @@ Property "group1.baz" was changed. From "bas" to "bars"
 Property "group2" was removed
 Property "group3" was added with value: "complex value"'''
 
-JSON_RESULT_FLAT = json.dumps({
-    'constant': 'yep',
-    '- test': 'bar',
-    '+ test': 'foo',
-    '- foo': 'bar',
-    '+ bar': 'foo'
-})
-
 
 def test_flat_files():
     assert engine.get_diff(
