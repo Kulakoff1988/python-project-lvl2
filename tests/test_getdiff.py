@@ -51,35 +51,35 @@ Property "group3" was added with value: "complex value"'''
 
 def test_flat_files():
     assert engine.get_diff(
-        './tests/fixtures/test_flat1.json',
-        './tests/fixtures/test_flat2.json',
+        './tests/fixtures/test_flat_old.json',
+        './tests/fixtures/test_flat_new.json',
         'string'
     ) == STRING_RESULT_FLAT
     assert engine.get_diff(
-        './tests/fixtures/test_flat1.json',
-        './tests/fixtures/test_flat2.json',
+        './tests/fixtures/test_flat_old.json',
+        './tests/fixtures/test_flat_new.json',
         'plain'
     ) == PLAIN_RESULT_FLAT
     assert engine.get_diff(
-        './tests/fixtures/test1.yml',
-        './tests/fixtures/test2.yml',
+        './tests/fixtures/test_flat_old.yml',
+        './tests/fixtures/test_flat_new.yml',
         'string'
     ) == STRING_RESULT_FLAT
     assert engine.get_diff(
-        './tests/fixtures/test1.yml',
-        './tests/fixtures/test2.yml',
+        './tests/fixtures/test_flat_old.yml',
+        './tests/fixtures/test_flat_new.yml',
         'plain'
     ) == PLAIN_RESULT_FLAT
 
 
 def test_nested_files():
     assert engine.get_diff(
-        './tests/fixtures/test1.json',
-        './tests/fixtures/test2.json',
+        './tests/fixtures/test_nested_old.json',
+        './tests/fixtures/test_nested_new.json',
         'string'
     ) == STING_RESULT_NESTED
     assert engine.get_diff(
-        './tests/fixtures/test1.json',
-        './tests/fixtures/test2.json',
+        './tests/fixtures/test_nested_old.json',
+        './tests/fixtures/test_nested_new.json',
         'plain'
     ) == PLAIN_RESULT_NESTED
