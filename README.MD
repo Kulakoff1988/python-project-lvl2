@@ -14,7 +14,7 @@ pip install --user --index-url https://test.pypi.org/simple/ --extra-index-url h
 
 ## Diff between two flat yaml or json files:
 ```
-gendiff tests/fixtures/test1.yml tests/fixtures/test2.yml
+gendiff tests/fixtures/test_flat_old.yml tests/fixtures/test_flat_new.yml
 ```
 The output in the string format by default:
 ```
@@ -30,7 +30,7 @@ The output in the string format by default:
 
 ## Diff between two recursive structured files:
 ```
-gendiff tests/fixtures/test1.json tests/fixtures/test2.json
+gendiff tests/fixtures/test_nested_old.json tests/fixtures/test_nested_new.json
 ```
 Output:
 ```
@@ -64,7 +64,7 @@ Output:
 
 ## Diff between two files in plain format:
 ```
-gendiff tests/fixtures/test1.json tests/fixtures/test2.json -f plain
+gendiff tests/fixtures/test_nested_old.json tests/fixtures/test_nested_new.json -f plain
 ```
 ```
 Property "common.setting2" was removed
