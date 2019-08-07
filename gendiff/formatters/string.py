@@ -9,10 +9,7 @@ def build_representation(ast, indent=''):
 
 
 def build_element(element, key, indent=''):
-    if element.get('value'):
-        value = element["value"]
-    if element.get('children'):
-        value = build_representation(element.get('children'), f'{indent}    ')
+    value = get_value(element, indent)
     if element['type'] == UNCHANGED:
         result = f'{indent}    {key}: {value}\n'
     if element['type'] == REMOVED:
@@ -23,3 +20,10 @@ def build_element(element, key, indent=''):
         result = f'{indent}  - {key}: {element["old_value"]}\n'
         result += f'{indent}  + {key}: {element["new_value"]}\n'
     return result
+
+
+def get_value(element, indent):
+    if element.get('value'):
+        return element["value"]
+    if element.get('children'):
+        return build_representation(element.get('children'), f'{indent}    ')

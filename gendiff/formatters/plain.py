@@ -21,10 +21,7 @@ def build_element(element, key):
     if element['type'] == REMOVED:
         result.append(f'Property "{path}" was removed')
     if element['type'] == ADDED:
-        if element.get('value'):
-            value = element.get('value')
-        else:
-            value = 'complex value'
+        value = get_value(element)
         result.append(
             f'Property "{path}" was added with value: "{value}"'
         )
@@ -34,3 +31,11 @@ def build_element(element, key):
             f'From "{element["old_value"]}" to "{element["new_value"]}"'
         )
     return result
+
+
+def get_value(element):
+    if element.get('value'):
+        value = element.get('value')
+    else:
+        value = 'complex value'
+    return value
