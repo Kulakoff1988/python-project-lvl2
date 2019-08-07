@@ -4,7 +4,7 @@
 
 # Diff generator
 
-This is the utility for getting diff between two json or yaml files (in development now).
+This is the utility for getting diff between two json or yaml files.
 
 Bellow you may see the way to install and use the package with flat json files:
 [![asciicast](https://asciinema.org/a/259941.svg)](https://asciinema.org/a/259941)
