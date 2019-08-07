@@ -12,57 +12,67 @@ def build_nested(node):
     return nested_ast
 
 
-def build_ast(file1, file2, path=''):
+def build_ast(old_file, new_file, path=''):
     ast = {}
-    if not file1 and not file2:
+    if not old_file and not new_file:
         print('No data to compare, the files are empty')
         return
-    for k in file1:
-        if k in file2:
-            if isinstance(file1[k], dict) and isinstance(file2[k], dict):
-                ast[k] = {
+    build_ast_from_old_file(old_file, new_file, ast, path)
+    build_ast_from_new_file(old_file, new_file, ast, path)
+    return ast
+
+
+def build_ast_from_old_file(old_file, new_file, container_ast, path):
+    for k in old_file:
+        if k in new_file:
+            if isinstance(old_file[k], dict) and isinstance(new_file[k], dict):
+                container_ast[k] = {
                     'type': UNCHANGED,
-                    'children': build_ast(file1[k], file2[k], f'{path}{k}.')
+                    'children': build_ast(
+                        old_file[k], new_file[k], f'{path}{k}.'
+                    )
                 }
                 continue
-            if file1[k] == file2[k]:
-                ast[k] = {
+            if old_file[k] == new_file[k]:
+                container_ast[k] = {
                     'type': UNCHANGED,
-                    'value': file1[k]
+                    'value': old_file[k]
                 }
                 continue
-            if file1[k] != file2[k]:
-                ast[k] = {
+            if old_file[k] != new_file[k]:
+                container_ast[k] = {
                     'type': CHANGED,
                     'path': f'{path}{k}',
-                    'old_value': file1[k],
-                    'new_value': file2[k]
+                    'old_value': old_file[k],
+                    'new_value': new_file[k]
                 }
                 continue
-        if isinstance(file1[k], dict):
-            ast[k] = {
+        if isinstance(old_file[k], dict):
+            container_ast[k] = {
                 'type': REMOVED,
                 'path': f'{path}{k}',
-                'children': build_nested(file1[k])
+                'children': build_nested(old_file[k])
             }
             continue
-        ast[k] = {
+        container_ast[k] = {
             'type': REMOVED,
             'path': f'{path}{k}',
-            'value': file1[k]
+            'value': old_file[k]
         }
-    for k in file2:
-        if k not in file1:
-            if isinstance(file2[k], dict):
-                ast[k] = {
+
+
+def build_ast_from_new_file(old_file, new_file, container_ast, path):
+    for k in new_file:
+        if k not in old_file:
+            if isinstance(new_file[k], dict):
+                container_ast[k] = {
                     'type': ADDED,
                     'path': f'{path}{k}',
-                    'children': build_nested(file2[k])
+                    'children': build_nested(new_file[k])
                 }
             else:
-                ast[k] = {
+                container_ast[k] = {
                     'type': ADDED,
                     'path': f'{path}{k}',
-                    'value': file2[k]
+                    'value': new_file[k]
                 }
-    return ast
