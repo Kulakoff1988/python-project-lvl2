@@ -12,7 +12,7 @@ pip install --user --index-url https://test.pypi.org/simple/ --extra-index-url h
 ```
 [![asciicast](https://asciinema.org/a/259941.svg)](https://asciinema.org/a/259941)
 
-To get diff between two flat yaml or json files use the command:
+## Diff between two flat yaml or json files:
 ```
 gendiff tests/fixtures/test1.yml tests/fixtures/test2.yml
 ```
@@ -28,7 +28,7 @@ The output in the string format by default:
 ```
 [![asciicast](https://asciinema.org/a/259968.svg)](https://asciinema.org/a/259968)
 
-To get diff between two recursive structure files use next:
+## Diff between two recursive structured files:
 ```
 gendiff tests/fixtures/test1.json tests/fixtures/test2.json
 ```
@@ -62,7 +62,7 @@ Output:
 ```
 [![asciicast](https://asciinema.org/a/259969.svg)](https://asciinema.org/a/259969)
 
-To get diff between two files in plain format use the command:
+## Diff between two files in plain format:
 ```
 gendiff tests/fixtures/test1.json tests/fixtures/test2.json -f plain
 ```
