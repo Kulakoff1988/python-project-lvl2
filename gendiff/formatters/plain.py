@@ -8,34 +8,35 @@ def build_representation(ast):
 
 def get_diff_list(ast):
     result = []
-    for k in ast:
-        result.extend(build_element(ast[k], k))
+    for k, v in ast.items():
+        result.extend(build_element(k, v))
     return result
 
 
-def build_element(element, key):
+def build_element(key, node):
     result = []
-    if element['type'] == UNCHANGED and element.get('children'):
-        result.extend(get_diff_list(element.get('children')))
-    path = element.get('path')
-    if element['type'] == REMOVED:
+    node_type = node.get('type')
+    if node_type == UNCHANGED and node.get('children'):
+        result.extend(get_diff_list(node.get('children')))
+    path = node.get('path')
+    if node_type == REMOVED:
         result.append(f'Property "{path}" was removed')
-    if element['type'] == ADDED:
-        value = get_value(element)
+    elif node_type == ADDED:
+        value = get_value(node)
         result.append(
             f'Property "{path}" was added with value: "{value}"'
         )
-    if element['type'] == CHANGED:
+    elif node_type == CHANGED:
         result.append(
             f'Property "{path}" was changed. '
-            f'From "{element["old_value"]}" to "{element["new_value"]}"'
+            f'From "{node.get("old_value")}" to "{node.get("new_value")}"'
         )
     return result
 
 
-def get_value(element):
-    if element.get('value'):
-        value = element.get('value')
+def get_value(node):
+    if node.get('value'):
+        value = node.get('value')
     else:
         value = 'complex value'
     return value

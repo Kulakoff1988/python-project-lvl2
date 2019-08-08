@@ -25,6 +25,7 @@ PyYAML = "^5.1"
 flake8 = "^3.7"
 pytest = "^5.0"
 coverage = "^4.5"
+rope = "^0.14.0"
 
 [tool.poetry.scripts]
 gendiff = "gendiff.scripts.gendiff:main"

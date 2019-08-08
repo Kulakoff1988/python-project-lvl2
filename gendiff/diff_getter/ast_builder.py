@@ -3,8 +3,8 @@ from gendiff.constants import UNCHANGED, CHANGED, ADDED, REMOVED
 
 def build_nested(node):
     nested_ast = {}
-    for k in node:
-        value = build_nested(node[k]) if isinstance(node[k], dict) else node[k]
+    for k, v in node.items():
+        value = build_nested(v) if isinstance(v, dict) else v
         nested_ast[k] = {
             'type': UNCHANGED,
             'value': value
@@ -14,65 +14,64 @@ def build_nested(node):
 
 def build_ast(old_file, new_file, path=''):
     ast = {}
-    if not old_file and not new_file:
-        print('No data to compare, the files are empty')
-        return
     build_ast_from_old_file(old_file, new_file, ast, path)
     build_ast_from_new_file(old_file, new_file, ast, path)
     return ast
 
 
 def build_ast_from_old_file(old_file, new_file, container_ast, path):
-    for k in old_file:
+    for k, v in old_file.items():
+        new_path = f'{path}{k}'
         if k in new_file:
-            if isinstance(old_file[k], dict) and isinstance(new_file[k], dict):
-                container_ast[k] = {
+            new_value = new_file.get(k)
+            if isinstance(v, dict) and isinstance(new_value, dict):
+                content = {
                     'type': UNCHANGED,
                     'children': build_ast(
-                        old_file[k], new_file[k], f'{path}{k}.'
+                        v, new_value, f'{new_path}.'
                     )
                 }
-                continue
-            if old_file[k] == new_file[k]:
-                container_ast[k] = {
+            elif v == new_value:
+                content = {
                     'type': UNCHANGED,
-                    'value': old_file[k]
+                    'value': v
                 }
-                continue
-            if old_file[k] != new_file[k]:
-                container_ast[k] = {
+            elif v != new_value:
+                content = {
                     'type': CHANGED,
-                    'path': f'{path}{k}',
-                    'old_value': old_file[k],
-                    'new_value': new_file[k]
+                    'path': new_path,
+                    'old_value': v,
+                    'new_value': new_value
                 }
-                continue
-        if isinstance(old_file[k], dict):
-            container_ast[k] = {
+        elif isinstance(v, dict):
+            content = {
                 'type': REMOVED,
-                'path': f'{path}{k}',
-                'children': build_nested(old_file[k])
+                'path': new_path,
+                'children': build_nested(v)
             }
-            continue
-        container_ast[k] = {
-            'type': REMOVED,
-            'path': f'{path}{k}',
-            'value': old_file[k]
-        }
+        else:
+            content = {
+                'type': REMOVED,
+                'path': new_path,
+                'value': v
+            }
+        container_ast[k] = content
 
 
 def build_ast_from_new_file(old_file, new_file, container_ast, path):
-    for k in new_file:
+    for k, v in new_file.items():
         if k not in old_file:
-            if isinstance(new_file[k], dict):
-                container_ast[k] = {
+            new_path = f'{path}{k}'
+            if isinstance(v, dict):
+                content = {
                     'type': ADDED,
-                    'path': f'{path}{k}',
-                    'children': build_nested(new_file[k])
+                    'path': new_path,
+                    'children': build_nested(v)
                 }
             else:
-                container_ast[k] = {
+                content = {
                     'type': ADDED,
-                    'path': f'{path}{k}',
-                    'value': new_file[k]
+                    'path': new_path,
+                    'value': v
                 }
+            container_ast[k] = content

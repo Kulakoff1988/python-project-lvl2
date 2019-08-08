@@ -2,28 +2,39 @@ from gendiff.constants import UNCHANGED, CHANGED, ADDED, REMOVED
 
 
 def build_representation(ast, indent=''):
-    result = ''
-    for k in ast:
-        result += build_element(ast[k], k, indent)
-    return '{\n' + result + indent + '}'
+    result = ['{']
+    for k, v in ast.items():
+        result.extend(build_element(k, v, indent))
+    result.append(f'{indent}}}')
+    return '\n'.join(result)
 
 
-def build_element(element, key, indent=''):
-    value = get_value(element, indent)
-    if element['type'] == UNCHANGED:
-        result = f'{indent}    {key}: {value}\n'
-    if element['type'] == REMOVED:
-        result = f'{indent}  - {key}: {value}\n'
-    if element['type'] == ADDED:
-        result = f'{indent}  + {key}: {value}\n'
-    if element['type'] == CHANGED:
-        result = f'{indent}  - {key}: {element["old_value"]}\n'
-        result += f'{indent}  + {key}: {element["new_value"]}\n'
+_OPERATORS = {
+    UNCHANGED: ' ',
+    REMOVED: '-',
+    ADDED: '+'
+}
+
+
+def build_element(key, node, indent=''):
+    result = []
+    template = f'{indent}  {{0}} {key}: {{1}}'
+
+    def add(*args):
+        result.append(template.format(*args))
+
+    node_type = node.get('type')
+    if node_type == CHANGED:
+        add("-", node.get('old_value'))
+        add("+", node.get('new_value'))
+    else:
+        add(_OPERATORS[node_type], get_value(node, indent))
     return result
 
 
-def get_value(element, indent):
-    if element.get('value'):
-        return element["value"]
-    if element.get('children'):
-        return build_representation(element.get('children'), f'{indent}    ')
+def get_value(node, indent):
+    if node.get('value'):
+        result = node.get('value')
+    else:
+        result = build_representation(node.get('children'), f'{indent}    ')
+    return result
