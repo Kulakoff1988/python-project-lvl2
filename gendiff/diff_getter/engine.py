@@ -1,7 +1,8 @@
 import json
 import yaml
 import os.path
-from gendiff.formatters import string, plain, m_json
+from gendiff.formatters import string, plain
+import gendiff.formatters.json as formatters_json
 from gendiff.diff_getter.ast_builder import build_ast
 
 
@@ -14,7 +15,7 @@ FORMAT_STRING, FORMAT_PLAIN, FORMAT_JSON = ('string', 'plain', 'json')
 BUILDERS_FORMATS = {
     FORMAT_STRING: string,
     FORMAT_PLAIN: plain,
-    FORMAT_JSON: m_json
+    FORMAT_JSON: formatters_json
 }
 
 
@@ -35,7 +36,7 @@ def get_file_content(file_path):
     return file_content
 
 
-def get_error_message(file_name=None, file_extension=None):
+def get_error_message(file_name, file_extension):
     return (
         f'The format of {file_name} "{file_extension}" '
         'is not supported by this program. '

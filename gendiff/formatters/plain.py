@@ -18,7 +18,8 @@ def build_element(key, node):
     node_type = node.get('type')
     if node_type == UNCHANGED and node.get('children'):
         result.extend(get_diff_list(node.get('children')))
-    path = node.get('path')
+    if node_type != UNCHANGED:
+        path = '.'.join(node.get('path'))
     if node_type == REMOVED:
         result.append(f'Property "{path}" was removed')
     elif node_type == ADDED:
@@ -35,7 +36,7 @@ def build_element(key, node):
 
 
 def get_value(node):
-    if node.get('value'):
+    if not isinstance(node.get('value'), dict):
         value = node.get('value')
     else:
         value = 'complex value'
