@@ -1,22 +1,11 @@
 from gendiff.constants import UNCHANGED, CHANGED, ADDED, REMOVED
 import json
 
-def build_nested(node):
-    nested_ast = {}
-    for k, v in node.items():
-        value = build_nested(v) if isinstance(v, dict) else v
-        nested_ast[k] = {
-            'type': UNCHANGED,
-            'value': value
-        }
-    return nested_ast
-
 
 def build_ast(old_file, new_file, path=()):
     ast = {}
     build_ast_from_old_file(old_file, new_file, ast, path)
     build_ast_from_new_file(old_file, new_file, ast, path)
-    # print(json.dumps(ast, indent=2))
     return ast
 
 
@@ -42,12 +31,6 @@ def build_ast_from_old_file(old_file, new_file, container_ast, path):
                     'old_value': v,
                     'new_value': new_value
                 }
-        # elif isinstance(v, dict):
-        #     content = {
-        #         'type': REMOVED,
-        #         'path': new_path,
-        #         'children': build_nested(v)
-        #     }
         else:
             content = {
                 'type': REMOVED,
@@ -61,13 +44,6 @@ def build_ast_from_new_file(old_file, new_file, container_ast, path):
     for k, v in new_file.items():
         if k not in old_file:
             new_path = path + (k,)
-            # if isinstance(v, dict):
-            #     content = {
-            #         'type': ADDED,
-            #         'path': new_path,
-            #         'children': build_nested(v)
-            #     }
-            # else:
             content = {
                 'type': ADDED,
                 'path': new_path,

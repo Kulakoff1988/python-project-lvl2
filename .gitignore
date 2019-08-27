@@ -4,3 +4,4 @@ dist/
 .venv/
 .vscode/
 .coverage
+.pytest_cache/

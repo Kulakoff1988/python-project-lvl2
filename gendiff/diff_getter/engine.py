@@ -54,7 +54,6 @@ def get_diff(old_file, new_file, format):
     old_file_content = get_file_content(old_file)
     new_file_content = get_file_content(new_file)
     if not old_file_content or not new_file_content:
-        print('pass')
         return
     ast = build_ast(old_file_content, new_file_content)
     result = build_representation(format, ast)

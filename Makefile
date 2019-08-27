@@ -22,7 +22,6 @@ run_diff_json:
 run_diff_error:
 	@poetry run gendiff tests/fixtures/test_flat_old.json tests/fixtures/test_flat_new.exe
 	@poetry run gendiff tests/fixtures/test_flat_old.bin tests/fixtures/test_flat_new.json
-
 run_test:
 	@poetry run pytest -vv
 	@poetry run coverage run ./tests/test_getdiff.py

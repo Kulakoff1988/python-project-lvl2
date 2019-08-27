@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kulakoff1988_gendiff"
-version = "0.1.4"
+version = "0.1.6"
 description = "The program for files comparison"
 authors = ["Aleksandr Kulakov <kulakofft4@gmail.com>"]
 repository = "https://test.pypi.org/project/kulakoff1988-brain-gendiff/"
